@@ -20,6 +20,7 @@ import word2vec_utils
 #############################
 ########## TO DO ############
 #############################
+tfe.enable_eager_execution()
 
 # Model hyperparameters
 VOCAB_SIZE = 50000
@@ -44,23 +45,36 @@ class Word2Vec(object):
     #############################
     ########## TO DO ############
     #############################
-    self.embed_matrix = None
-    self.nce_weight = None
-    self.nce_bias = None
+    self.embed_matrix = tfe.Variable(tf.random_uniform(
+        [vocab_size, embed_size]))
+    self.nce_weight = tfe.Variable(tf.random.truncated_normal(
+        [vocab_size, embed_size], stdev=1.0 / (embed_size ** 0.5)))
+    self.nce_bias = tfe.Variable(tf.zeros(vocab_size))
 
   def compute_loss(self, center_words, target_words):
-    """Computes the forward pass of word2vec with the NCE loss.""" 
+    """Computes the forward pass of word2vec with the NCE loss."""
     # Look up the embeddings for the center words
     #############################
     ########## TO DO ############
     #############################
-    embed = None
+    embed = tf.nn.embedding_loopup(
+        params=self.embed_matrix,
+        ids=center_words
+        )
 
     # Compute the loss, using tf.reduce_mean and tf.nn.nce_loss
     #############################
     ########## TO DO ############
     #############################
-    loss = None
+    loss = tf.nn.nce_loss(
+        weights=self.nce_weight,
+        bias=self.nce_bias,
+        labels=target_words,
+        inputs=embed,
+        num_sampled=self.num_sampled,
+        num_classes=self.vocab_size
+        )
+    loss = tf.reduce_mean(loss)
     return loss
 
 
@@ -78,13 +92,13 @@ def main():
   #############################
   ########## TO DO ############
   #############################
-  model = None
+  model = Word2Vec(VOCAB_SIZE, EMBED_SIZE)
 
   # Create the gradients function, using `tfe.implicit_value_and_gradients`
   #############################
   ########## TO DO ############
   #############################
-  grad_fn = None
+  grad_fn = tfe.implicit_value_and_gradients(model.compute_loss)
 
   total_loss = 0.0  # for average loss in the last SKIP_STEP steps
   num_train_steps = 0
@@ -97,7 +111,10 @@ def main():
       #############################
       ########## TO DO ############
       #############################
-      
+      loss, gradients = grad_fn(center_words, target_words)
+      total_loss += loss
+      optimizer.apply_gradients(gradients)
+
       if (num_train_steps + 1) % SKIP_STEP == 0:
         print('Average loss at step {}: {:5.1f}'.format(
                 num_train_steps, total_loss / SKIP_STEP))

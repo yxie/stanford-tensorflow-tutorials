@@ -44,14 +44,14 @@ def read_birth_life_data(filename):
     data = np.asarray(data, dtype=np.float32)
     return data, n_samples
 
-def download_one_file(download_url, 
-                    local_dest, 
-                    expected_byte=None, 
+def download_one_file(download_url,
+                    local_dest,
+                    expected_byte=None,
                     unzip_and_remove=False):
-    """ 
+    """
     Download the file from download_url into local_dest
     if the file doesn't already exists.
-    If expected_byte is provided, check if 
+    If expected_byte is provided, check if
     the downloaded file has the same number of bytes.
     If unzip_and_remove is True, unzip the file and remove the zip file
     """
@@ -72,8 +72,8 @@ def download_one_file(download_url,
                 print('The downloaded file has unexpected number of bytes')
 
 def download_mnist(path):
-    """ 
-    Download and unzip the dataset mnist if it's not already downloaded 
+    """
+    Download and unzip the dataset mnist if it's not already downloaded
     Download from http://yann.lecun.com/exdb/mnist
     """
     safe_mkdir(path)
@@ -99,7 +99,7 @@ def parse_data(path, dataset, flatten):
         labels = np.fromfile(file, dtype=np.int8) #int8
         new_labels = np.zeros((num, 10))
         new_labels[np.arange(num), labels] = 1
-    
+
     img_file = os.path.join(path, dataset + '-images-idx3-ubyte')
     with open(img_file, 'rb') as file:
         _, num, rows, cols = struct.unpack(">IIII", file.read(16))
@@ -123,7 +123,7 @@ def read_mnist(path, flatten=True, num_train=55000):
     val_img, val_labels = imgs[val_idx, :], labels[val_idx, :]
     test = parse_data(path, 't10k', flatten)
     return (train_img, train_labels), (val_img, val_labels), test
-    
+
 def show(image):
     """
     Render a given numpy.uint8 2D array of pixel data.
