@@ -1,5 +1,5 @@
 """ Load VGGNet weights needed for the implementation in TensorFlow
-of the paper A Neural Algorithm of Artistic Style (Gatys et al., 2016) 
+of the paper A Neural Algorithm of Artistic Style (Gatys et al., 2016)
 
 Created by Chip Huyen (chiphuyen@cs.stanford.edu)
 CS20: "TensorFlow for Deep Learning Research"
@@ -48,19 +48,25 @@ class VGG(object):
             layer_idx: the index to current layer in vgg_layers
             layer_name: the string that is the name of the current layer.
                         It's used to specify variable_scope.
-        Hint for choosing strides size: 
+        Hint for choosing strides size:
             for small images, you probably don't want to skip any pixel
         """
         ###############################
         ## TO DO
-        out = None
+        with tf.variable_scope(layer_name, reuse=tf.AUTO_REUSE) as scope:
+            w, b = self._weights(layer_idx, layer_name)
+            stride = 1
+            kernel = tf.constant(value=w, name='kernel')
+            bias = tf.constant(value=b, name='bias')
+            conv = tf.nn.conv2d(prev_layer, kernel, strides=[1, stride, stride, 1], padding='SAME')
+            out = tf.nn.relu(conv + bias)
         ###############################
         setattr(self, layer_name, out)
 
     def avgpool(self, prev_layer, layer_name):
-        """ Create the average pooling layer. The paper suggests that 
+        """ Create the average pooling layer. The paper suggests that
         average pooling works better than max pooling.
-        
+
         Input:
             prev_layer: the output tensor from the previous layer
             layer_name: the string that you want to name the layer.
@@ -70,7 +76,15 @@ class VGG(object):
         """
         ###############################
         ## TO DO
-        out = None
+        with tf.variable_scope(layer_name, reuse=tf.AUTO_REUSE) as scope:
+            ksize = 2
+            stride = 2
+            out = tf.nn.avg_pool(
+                prev_layer,
+                ksize=[1, ksize, ksize, 1],
+                strides=[1, stride, stride, 1],
+                padding='SAME' #not VALID?
+            )
         ###############################
         setattr(self, layer_name, out)
 

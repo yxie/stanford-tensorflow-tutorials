@@ -10,3 +10,8 @@ examples/checkpoints/*
 examples/visualization/*
 
 my-notes/jupyter-notebook/graphs/*
+
+assignments/02_style_transfer/checkpoints/
+assignments/02_style_transfer/graphs/
+assignments/02_style_transfer/imagenet-vgg-verydeep-19.mat
+assignments/02_style_transfer/outputs/
